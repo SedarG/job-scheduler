@@ -53,24 +53,45 @@ public class HierarchicalTimerWheel {
         this(1000,75);
     }
 
+    private LinkedList<Job> locate(long time) {
 
-    public boolean add(Job job) {
-        long nextDue = job.nextSchedule() / granularity;
         int l = 0;
         long levelStart = 0;
         long levelRange = levelSize;
         long levelEnd = levelStart + levelRange;
-        while(nextDue >= levelEnd) {
+        while(time >= levelEnd) {
             l++;
             levelStart = levelEnd;
             levelRange = levelSize * levelRange;
             levelEnd = levelStart + levelRange;
         }
         if (l >= this.currentIndexes.length) {
+            return null;
+        }
+        int idxIntoLevel = (int)((time - levelStart) / (levelRange/levelSize));
+        return entries[l][idxIntoLevel];
+    }
+
+    public boolean remove(Job job) {
+        if (job.nextSchedule() < startTimestamp) {
             return false;
         }
-        int idxIntoLevel = (int)((nextDue - levelStart) / (levelRange/levelSize));
-        entries[l][idxIntoLevel].add(job);
+        long nextDue = (job.nextSchedule() - startTimestamp) / granularity;
+        LinkedList<Job> jobSlot = locate(nextDue);
+
+        return jobSlot != null && jobSlot.remove(job);
+    }
+
+    public boolean add(Job job) {
+        if (job.nextSchedule() < startTimestamp) {
+            return false;
+        }
+        long nextDue = (job.nextSchedule() - startTimestamp) / granularity;
+        LinkedList<Job> jobSlot = locate(nextDue);
+        if (jobSlot == null) {
+            return false;
+        }
+        jobSlot.add(job);
         return true;
     }
 }
