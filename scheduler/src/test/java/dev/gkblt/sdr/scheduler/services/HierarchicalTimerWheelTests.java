@@ -37,6 +37,9 @@ class HierarchicalTimerWheelTests {
 
         wheel.add(newJob(11109L));
         assert(wheel.entries[3][9].size() == 1);
+
+        // 11110 is greater than the max that can be scheduled. add() should handle it properly
+        assert(!wheel.add(newJob(11110L)));
     }
 
     @Test
@@ -48,4 +51,5 @@ class HierarchicalTimerWheelTests {
         wheel.add(newJob(30L));
         assert(wheel.entries[0][3].size() == 1);
     }
+
 }
