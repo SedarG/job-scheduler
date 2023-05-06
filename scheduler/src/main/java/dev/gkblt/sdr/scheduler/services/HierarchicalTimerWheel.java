@@ -72,6 +72,16 @@ public class HierarchicalTimerWheel {
         return entries[l][idxIntoLevel];
     }
 
+    public boolean remove(Job job) {
+        if (job.nextSchedule() < startTimestamp) {
+            return false;
+        }
+        long nextDue = (job.nextSchedule() - startTimestamp) / granularity;
+        LinkedList<Job> jobSlot = locate(nextDue);
+
+        return jobSlot != null && jobSlot.remove(job);
+    }
+
     public boolean add(Job job) {
         if (job.nextSchedule() < startTimestamp) {
             return false;
