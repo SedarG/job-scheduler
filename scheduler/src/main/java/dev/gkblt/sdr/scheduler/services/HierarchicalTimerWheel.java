@@ -6,9 +6,9 @@ import java.util.LinkedList;
 
 public class HierarchicalTimerWheel {
 
-    private int granularity;
-    private int levels;
-    private int levelSize;
+    private final int granularity;
+    private final int levels;
+    private final int levelSize;
 
     private int startTimestamp;
     LinkedList<Job>[][] entries;
@@ -57,7 +57,7 @@ public class HierarchicalTimerWheel {
 
 
     public void add(Job job) {
-        long nextDue = job.nextSchedule();
+        long nextDue = job.nextSchedule() / granularity;
         int l = 0;
         long levelStart = 0;
         long levelRange = levelSize;

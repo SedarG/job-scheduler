@@ -38,4 +38,14 @@ class HierarchicalTimerWheelTests {
         wheel.add(newJob(11109L));
         assert(wheel.entries[3][9].size() == 1);
     }
+
+    @Test
+    void granularity() {
+        HierarchicalTimerWheel wheel = new HierarchicalTimerWheel(10, 10, 4, 0);
+        wheel.add(newJob(3L));
+        assert(wheel.entries[0][0].size() == 1);
+
+        wheel.add(newJob(30L));
+        assert(wheel.entries[0][3].size() == 1);
+    }
 }
