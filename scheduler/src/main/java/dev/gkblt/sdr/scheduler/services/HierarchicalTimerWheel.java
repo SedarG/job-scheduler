@@ -55,7 +55,10 @@ public class HierarchicalTimerWheel {
 
 
     public boolean add(Job job) {
-        long nextDue = job.nextSchedule() / granularity;
+        if (job.nextSchedule() < startTimestamp) {
+            return false;
+        }
+        long nextDue = (job.nextSchedule() - startTimestamp) / granularity;
         int l = 0;
         long levelStart = 0;
         long levelRange = levelSize;

@@ -52,4 +52,16 @@ class HierarchicalTimerWheelTests {
         assert(wheel.entries[0][3].size() == 1);
     }
 
+    @Test
+    void startTimestamp() {
+        HierarchicalTimerWheel wheel = new HierarchicalTimerWheel(10, 10, 4, 1000);
+        wheel.add(newJob(1003L));
+        assert(wheel.entries[0][0].size() == 1);
+
+        wheel.add(newJob(1030L));
+        assert(wheel.entries[0][3].size() == 1);
+
+        // 10 is less than startTimestamp. HTW.add should gracefully handle it.
+        assert(!wheel.add(newJob(10L)));
+    }
 }
