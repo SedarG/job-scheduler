@@ -2,9 +2,11 @@ package dev.gkblt.sdr.scheduler.components;
 
 import dev.gkblt.sdr.scheduler.model.Job;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class HierarchicalTimerWheel {
 
     private final ITimeProvider time;
