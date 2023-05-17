@@ -32,6 +32,9 @@ public class HierarchicalTimerWheel {
     }
 
     public boolean add(Job job) {
+        // TODO: Tighten the check more; nextSchedule should be after current time, not just primary.getStartTimestamp
+        // which could be as old as now - MAX_RECURRENCE
+        // https://github.com/SedarG/job-scheduler/issues/8
         if (job.nextSchedule() < primary.getStartTimestamp() ) {
             return false;
         }
