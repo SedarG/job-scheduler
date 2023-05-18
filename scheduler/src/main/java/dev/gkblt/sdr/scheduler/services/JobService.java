@@ -4,33 +4,54 @@ import dev.gkblt.sdr.scheduler.components.HierarchicalTimerWheel;
 import dev.gkblt.sdr.scheduler.errors.InvalidUserInput;
 import dev.gkblt.sdr.scheduler.errors.ResourceNotFound;
 import dev.gkblt.sdr.scheduler.model.Job;
+import dev.gkblt.sdr.scheduler.model.LogEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Service
 public class JobService implements IJobService {
+    private final Logger logger = LoggerFactory.getLogger(JobService.class);
     private final Map<Integer, Map<Integer, Job>> jobsByUser = new HashMap<>();
     private final HierarchicalTimerWheel wheel;
     private final static String JOB_EXISTS_TEMPLATE = "a job with the supplied jobId (%d) already exists for the user (%d)";
+    private final static String JOB_LOG = "Running %s";
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    @Value("${logging.service.address}")
+    private String loggingServiceAddress;
+
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public JobService(HierarchicalTimerWheel wheel) {
+    public JobService(HierarchicalTimerWheel wheel, RestTemplateBuilder builder) {
+        this.restTemplate = builder.build();
         this.wheel = wheel;
         executorService.schedule(this::timerRun, 1000, TimeUnit.MILLISECONDS);
     }
 
     void timerRun() {
-        List<Job> dueJobs = wheel.jobsDue();
-        // TODO: call logging service
-
-        // TODO: reschedule if needed
+        logger.trace("In timerRun");
+        try {
+            List<Job> dueJobs = wheel.jobsDue();
+            for (Job job : dueJobs) {
+                logger.debug(String.format("About to call loggerService for %s", job.toString()));
+                restTemplate.postForEntity(loggingServiceAddress, new LogEntry(System.currentTimeMillis(), String.format(JOB_LOG, job.toString())), LogEntry.class);
+                // TODO: reschedule if needed
+            }
+        } catch (Exception e) {
+            logger.error("timerRun", e);
+        } finally {
+            executorService.schedule(this::timerRun, 1000, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
