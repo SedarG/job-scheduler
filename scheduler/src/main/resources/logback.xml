@@ -50,5 +50,10 @@
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </logger>
+
+    <logger name="dev.gkblt.sdr.scheduler.services.JobService" level="DEBUG">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
 </configuration>
 
