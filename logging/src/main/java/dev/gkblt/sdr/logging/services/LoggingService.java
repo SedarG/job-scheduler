@@ -12,12 +12,7 @@ import java.util.stream.Collectors;
 @Service
 public class LoggingService implements ILogging {
 
-    PriorityQueue<LogEntry> entries = new PriorityQueue<>(new Comparator<LogEntry>() {
-        @Override
-        public int compare(LogEntry a, LogEntry b) {
-            return (int)(a.timestamp() - b.timestamp());
-        }
-    });
+    PriorityQueue<LogEntry> entries = new PriorityQueue<>((a, b) -> (int)(a.timestamp() - b.timestamp()));
 
     @Override
     public void log(LogEntry entry) {
@@ -27,7 +22,7 @@ public class LoggingService implements ILogging {
     @Override
     public List<LogEntry> get(Optional<Long> afterTimestamp) {
         return entries.stream()
-                .takeWhile((e) -> e.timestamp() >= afterTimestamp.orElse(0L))
+                .dropWhile((e) -> e.timestamp() <= afterTimestamp.orElse(0L))
                 .collect(Collectors.toList());
     }
 }
