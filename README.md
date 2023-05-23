@@ -11,7 +11,14 @@ The data structure used to store jobs is a combination of a HashMap<userId, Hash
 HTW is a stack of circular buffers, representing buckets of layered granularities. It's based on [Hashed and hierarchical timing wheels: data structures for the efficient implementation of a timer facility](https://dl.acm.org/doi/10.1145/41457.37504). I then used a pair of these data structures to store the scheduled jobs in the respective slots. Each HTW is capable of storing jobs that are due in a fixed offset of time. The first HTW keeps the imminent jobs, the second one keeps the jobs that are due in the next window. When the first HTW is drained, the algorithm makes the second one the imminent and creates a new HTW for next window. 
 
 ## Status
-The basic functionality is implemented and functional. Beyond that is beyond the purpose of the excercise.
+The basic functionality is implemented and functional. Beyond that is T.B.D. for now.
+Fun things to add:
+* Abstractions on APIs and Storage at the service/process level
+* Partitioning and Replication
+* Ser/Deserialization to a file format to persist on a durable data store + WAL
+* Allow jobs to define a set of dependencies, build a graph beside the HashMap and HTW to efficiently calculate the dependency closure. 
+* Real executables as jobs
+* Efficient and durable storage of executable packages/container images
 
 ## Running the example
 * On a terminal, start the logging service using gradle:
